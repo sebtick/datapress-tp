@@ -534,5 +534,4 @@ Ce POC fournit donc une **base simple mais cohérente** sur laquelle les équipe
 
 ---
 
-Si tu veux, je peux aussi te générer un **fichier .pptx** directement (avec ces slides déjà créées) que tu pourras télécharger et ajuster, ou bien adapter la doc technique en PDF.
 ```
