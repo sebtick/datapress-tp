@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <title>DataPress – POC</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #0f172a;
+            color: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background: #020617;
+            border-radius: 16px;
+            padding: 24px 32px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            max-width: 480px;
+            width: 100%;
+        }
+        h1 {
+            margin-top: 0;
+            margin-bottom: 8px;
+        }
+        .version {
+            font-size: 0.9rem;
+            color: #9ca3af;
+            margin-bottom: 16px;
+        }
+        button, a.button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 16px;
+            border-radius: 999px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            background: #6366f1;
+            color: #e5e7eb;
+            transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+        }
+        button:hover, a.button:hover {
+            background: #4f46e5;
+            box-shadow: 0 12px 24px rgba(99,102,241,0.3);
+            transform: translateY(-1px);
+        }
+        pre {
+            background: #020617;
+            border-radius: 8px;
+            padding: 12px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+            border: 1px solid #111827;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>DataPress – POC</h1>
+        <div class="version">Version : v1.0 – Environnement de démonstration</div>
+        <p>
+            Cette interface très simple permet de vérifier que le front est déployé
+            et d'appeler l'API du POC DataPress.
+        </p>
+        <p style="margin-bottom: 12px;">
+            Exemple : en mode développement Docker Compose, l'API est exposée sur
+            <code>http://localhost:8080/</code>.
+        </p>
+
+        <button id="btn-test">Tester l'API</button>
+
+        <pre id="output">Clique sur "Tester l'API"…</pre>
+
+        <script>
+            const API_URL = window.API_URL || "http://localhost:8080/";
+            const button = document.getElementById("btn-test");
+            const output = document.getElementById("output");
+
+            button.addEventListener("click", async () => {
+                output.textContent = "Appel de l'API en cours… (" + API_URL + ")";
+                try {
+                    const res = await fetch(API_URL);
+                    const data = await res.json();
+                    output.textContent = JSON.stringify(data, null, 2);
+                } catch (e) {
+                    output.textContent = "Erreur lors de l'appel API : " + e;
+                }
+            });
+        </script>
+    </div>
+</body>
+</html>

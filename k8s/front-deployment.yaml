@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: datapress-front
+  namespace: datapress-recette
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: datapress-front
+  template:
+    metadata:
+      labels:
+        app: datapress-front
+    spec:
+      containers:
+        - name: front
+          image: datapress-front:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
