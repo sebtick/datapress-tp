@@ -1,3 +1,17 @@
+Oui, maintenant on va *concrétiser* les livrables demandés dans les documents de sujet :
+
+* **1 doc technique** clair
+* **1 présentation “client”** (contenu de slides)
+
+Je te donne tout prêt à copier-coller dans ton dépôt (`docs/`) et dans ton PowerPoint.
+
+---
+
+## 1. Documentation technique (Markdown complet)
+
+👉 Tu peux mettre ça dans un fichier `docs/datapress_doc_technique.md` ou fusionner avec ceux que je t’avais créés.
+
+````markdown
 # POC DataPress – Documentation technique
 
 ## 1. Contexte et objectifs
@@ -211,3 +225,325 @@ Depuis la racine du projet :
 
 ```bash
 docker compose up --build
+````
+
+* API : `http://localhost:8080/` et `http://localhost:8080/health`
+* Front : `http://localhost:8081/`
+
+#### 5.1.3 Arrêt
+
+Dans le terminal où tourne Compose :
+
+* `Ctrl+C`, puis éventuellement :
+
+```bash
+docker compose down
+```
+
+### 5.2 Déploiement Kubernetes (recette)
+
+> Exemple de procédure sur un cluster local type Docker Desktop / Minikube.
+
+#### 5.2.1 Création des objets de base
+
+```bash
+kubectl apply -f k8s/namespace.yaml
+kubectl apply -f k8s/configmap.yaml
+kubectl apply -f k8s/secret.yaml
+```
+
+#### 5.2.2 Déploiement de l’API
+
+```bash
+kubectl apply -f k8s/api-deployment.yaml
+kubectl apply -f k8s/api-service.yaml
+```
+
+Vérification :
+
+```bash
+kubectl get deploy,pods,svc -n datapress-recette
+kubectl logs -n datapress-recette <nom_pod_api>
+```
+
+#### 5.2.3 Déploiement du front
+
+```bash
+kubectl apply -f k8s/front-deployment.yaml
+kubectl apply -f k8s/front-service-nodeport.yaml
+```
+
+Vérification :
+
+```bash
+kubectl get deploy,pods,svc -n datapress-recette
+```
+
+Accès front (NodePort) :
+
+* `http://<IP_node>:30080`
+
+Le front doit afficher la page DataPress POC et le bouton “Tester l’API” doit renvoyer le JSON de l’API.
+
+### 5.3 Commandes de diagnostic utiles
+
+* **Lister les ressources** :
+
+  ```bash
+  kubectl get all -n datapress-recette
+  ```
+* **Voir les événements récents** :
+
+  ```bash
+  kubectl get events -n datapress-recette --sort-by=.lastTimestamp
+  ```
+* **Inspecter un pod** :
+
+  ```bash
+  kubectl describe pod <nom_pod> -n datapress-recette
+  ```
+* **Voir les logs** :
+
+  ```bash
+  kubectl logs <nom_pod> -n datapress-recette
+  ```
+
+---
+
+## 6. CI/CD minimal (GitHub Actions)
+
+Un workflow GitHub Actions `Build API image` est défini dans `.github/workflows/build-api.yml`.
+
+### 6.1 Déclencheurs
+
+* Sur `push` vers la branche `main` (et éventuellement `master`),
+* Sur création de Pull Request.
+
+### 6.2 Étapes principales
+
+1. **Checkout du dépôt** (`actions/checkout`).
+2. **Setup Docker Buildx** (préparation d’un environnement de build).
+3. **Build de l’image API** :
+
+   * exécution de `docker build` dans `app/api/` pour vérifier que l’image `datapress-api` se construit correctement.
+
+### 6.3 Intérêt pour DataPress
+
+* Détection rapide des erreurs de build lors d’un commit,
+* Base pour une future chaîne CI/CD plus complète :
+
+  * push d’images vers un registry,
+  * déploiement automatique sur un cluster,
+  * tests automatisés.
+
+---
+
+## 7. Limites du POC et pistes d’amélioration
+
+### 7.1 Limites actuelles
+
+* Pas de base de données réelle intégrée (simulation simple).
+* Pas de TLS ni de gestion de certificats pour l’accès au front.
+* Pas d’Ingress Controller configuré.
+* Pas d’autoscaling (HPA) ni de stratégies de **rolling update** avancées.
+* Pas de monitoring centralisé (Prometheus, Grafana, logs centralisés).
+* Pas de NetworkPolicies pour restreindre les flux inter-pods.
+
+### 7.2 Pistes d’évolution
+
+Pour une future version de l’architecture cible, il serait pertinent de :
+
+1. **Intégrer une base de données** (managée ou StatefulSet Kubernetes).
+2. **Introduire un Ingress** avec TLS (certificats managés ou Let’s Encrypt).
+3. **Mettre en place le monitoring** (Prometheus, Grafana, Loki ou équivalent).
+4. **Gérer la sécurité réseau** avec des NetworkPolicies.
+5. **Automatiser davantage la CI/CD** :
+
+   * build & push d’images dans un registry privé,
+   * déploiement sur un cluster de recette,
+   * tests d’acceptation automatisés.
+6. **Industrialiser la gestion des secrets** (Vault ou Secret Manager plutôt que des Secrets K8s bruts).
+
+Ce POC fournit donc une **base simple mais cohérente** sur laquelle les équipes DataPress peuvent s’appuyer pour aller vers une architecture conteneurisée plus robuste.
+
+```
+
+---
+
+## 2. Présentation “client” (contenu de slides)
+
+👉 Tu peux créer un PPT “POC DataPress – Conteneurs & Kubernetes” et copier ce contenu slide par slide.
+
+### Slide 1 – Titre
+
+**Titre :**  
+> POC DataPress – Conteneurs & Kubernetes  
+
+**Sous-titre :**  
+> Séparation front / API, environnement de recette et CI minimale  
+
+**Bas de page :**  
+> Équipe consulting – Date
+
+---
+
+### Slide 2 – Contexte DataPress
+
+**Titre :** Contexte et problématique
+
+**Points :**
+
+- PME éditrice de tableaux de bord pour équipes marketing.
+- Plateforme interne actuelle **monolithique** sur un seul serveur.
+- Sur la même machine : front, API, base de données, scripts `cron`.
+- Incidents récents → indisponibilité globale, MEP risquées, peu de recette.
+- Besoin de préparer une **modernisation** (conteneurs, orchestration, CI/CD).
+
+---
+
+### Slide 3 – Objectifs du POC
+
+**Titre :** Objectifs
+
+**Points :**
+
+- Séparer clairement **front** et **API**.
+- Disposer d’un environnement de **recette** plus fiable.
+- Démarrer l’usage de **Docker** et de **Kubernetes**.
+- Mettre en place un **début de CI/CD** (build automatisé).
+- Fournir :
+  - une architecture cible simple,
+  - des fichiers de configuration propres,
+  - une documentation technique + une présentation de synthèse.
+
+---
+
+### Slide 4 – Périmètre fonctionnel
+
+**Titre :** Périmètre fonctionnel POC
+
+**Points :**
+
+- Front :
+  - Page `DataPress – POC`,
+  - Affichage d’une **version** (ex. `v1.0 POC`),
+  - Bouton pour **tester l’API** et afficher sa réponse.
+- API :
+  - `GET /` → JSON `{ "service": "api", "ts": … }`,
+  - `GET /health` → utilisé par les probes Kubernetes.
+- Pas de base de données réelle : données simulées (timestamp), focus sur le déploiement.
+
+---
+
+### Slide 5 – Architecture globale
+
+**Titre :** Vue d’ensemble de l’architecture
+
+**Contenu :**
+
+- Schéma (à dessiner) avec :
+  - Mode dev : poste développeur → Docker Compose → `front` + `api`.
+  - Mode recette : utilisateurs → NodePort front → Service front → Service API → pods API.
+- Séparation nette front / API.
+- Namespace dédié `datapress-recette` pour la recette.
+
+---
+
+### Slide 6 – Mode développement (Docker)
+
+**Titre :** Mode développement – Docker Compose
+
+**Points :**
+
+- Fichier `docker-compose.yml` :
+  - Service `api` (FastAPI, port 8080),
+  - Service `front` (NGINX statique, port 8081).
+- Lancement simple :
+  - `docker compose up --build`
+- Tests :
+  - `http://localhost:8080/` et `/health` pour l’API,
+  - `http://localhost:8081/` pour le front.
+- Objectif : itération rapide, environnement isolé.
+
+---
+
+### Slide 7 – Mode recette (Kubernetes)
+
+**Titre :** Mode recette – Kubernetes
+
+**Points :**
+
+- Namespace : `datapress-recette`.
+- API :
+  - `Deployment` 2 replicas,
+  - `Service` **ClusterIP** sur port 80,
+  - probes `/health` + requests/limits mémoire.
+- Front :
+  - `Deployment` 1 replica,
+  - `Service` **NodePort** (ex. 30080) pour accès externe.
+- Utilisation de :
+  - `ConfigMap` pour la configuration non sensible,
+  - `Secret` pour une valeur sensible (mot de passe simulé).
+
+---
+
+### Slide 8 – Sécurité & fiabilité
+
+**Titre :** Sécurité et fiabilité
+
+**Points :**
+
+- API packagée dans un conteneur **non-root**.
+- Séparation front / API → meilleure isolation.
+- Probes Kubernetes `/health` :
+  - `readiness` → ne reçoit du trafic que lorsqu’elle est prête,
+  - `liveness` → redémarrage automatique en cas de blocage.
+- **Resources** définies (requests/limits) pour maîtriser la consommation.
+- ConfigMap / Secret :
+  - Configuration claire,
+  - Différenciation config vs secrets.
+
+---
+
+### Slide 9 – CI/CD minimal
+
+**Titre :** CI/CD – Build automatisé
+
+**Points :**
+
+- Workflow GitHub Actions : `Build API image`.
+- Déclenchement :
+  - `push` sur la branche `main`,
+  - Pull Requests.
+- Étapes :
+  - Checkout du code,
+  - Setup Docker Buildx,
+  - Build de l’image API.
+- Bénéfices :
+  - Vérification automatique que l’API se build,
+  - Base pour un pipeline de déploiement complet.
+
+---
+
+### Slide 10 – Limites et suite
+
+**Titre :** Limites du POC & recommandations
+
+**Points :**
+
+- Limites :
+  - Pas de base de données réelle,
+  - Pas d’Ingress ni de TLS,
+  - Pas d’autoscaling ni de supervision avancée,
+  - Pas de NetworkPolicies.
+- Recommandations :
+  - Intégrer une base de données gérée,
+  - Ajouter un Ingress + TLS,
+  - Mettre en place monitoring et logs centralisés,
+  - Étendre la CI/CD (registry, déploiement automatique),
+  - Travailler la sécurité réseau (NetworkPolicies).
+
+---
+
+Si tu veux, je peux aussi te générer un **fichier .pptx** directement (avec ces slides déjà créées) que tu pourras télécharger et ajuster, ou bien adapter la doc technique en PDF.
+```
