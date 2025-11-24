@@ -1,15 +1,4 @@
-Oui, maintenant on va *concrétiser* les livrables demandés dans les documents de sujet :
-
-* **1 doc technique** clair
-* **1 présentation “client”** (contenu de slides)
-
-Je te donne tout prêt à copier-coller dans ton dépôt (`docs/`) et dans ton PowerPoint.
-
----
-
-## 1. Documentation technique (Markdown complet)
-
-👉 Tu peux mettre ça dans un fichier `docs/datapress_doc_technique.md` ou fusionner avec ceux que je t’avais créés.
+## 1. Documentation technique 
 
 ````markdown
 # POC DataPress – Documentation technique
